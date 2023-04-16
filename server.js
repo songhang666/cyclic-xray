@@ -1,6 +1,6 @@
-const username = process.env.WEB_USERNAME || "admin";
-const password = process.env.WEB_PASSWORD || "password";
-const port = process.env.PORT || 3000;
+const username = "admin";
+const password = "password";
+const port = 3000;
 const express = require("express");
 const app = express();
 var exec = require("child_process").exec;
