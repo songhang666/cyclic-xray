@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 
-# 设置各变量
+# 设置各变量，WS 路径前缀。(注意:伪装路径不需要 / 符号开始,为避免不必要的麻烦,请不要使用特殊符号.)
 WSPATH=${WSPATH:-'argo'}
-UUID=${UUID:-'6a43da28-861b-4bc8-a521-9728b883b32b'}
+UUID=${UUID:-'de04add9-5c68-8bab-950c-08cd5320df18'}
 
 # 哪吒三个参数，不需要的话可以留空，删除或在这三行最前面加 # 以注释
-NEZHA_SERVER= 
-NEZHA_PORT=
-NEZHA_KEY=
+NEZHA_SERVER="$NEZHA_SERVER"
+NEZHA_PORT="$NEZHA_PORT"
+NEZHA_KEY="$NEZHA_KEY"
 
 # Argo 固定域名隧道的两个参数,这个可以填 Json 内容或 Token 内容，获取方式看 https://github.com/fscarmen2/X-for-Glitch，不需要的话可以留空，删除或在这三行最前面加 # 以注释
-ARGO_AUTH='eyJhIjoiZDFhMWQxNGExNzU1MmFhMTM1Y2NiMmQ2YjdkMjIzOTYiLCJ0IjoiMTUwOWFkMGYtNmNkZC00ZTIzLTk2OWMtZTEyYjJmY2NkZDRjIiwicyI6Ik4yWmpNRGRoTVdZdE5tWmlaQzAwT1dKaUxUazNaV0l0T1daa04yWm1PV001T0RneCJ9'
-ARGO_DOMAIN=cyclic.boyboyboyboy.top
+ARGO_AUTH="$ARGO_AUTH"
+ARGO_DOMAIN="$ARGO_DOMAIN"
+
+# 安装系统依赖
+check_dependencies() {
+  DEPS_CHECK=("wget" "unzip" "ss")
+  DEPS_INSTALL=(" wget" " unzip" " iproute2")
+  for ((i=0;i<${#DEPS_CHECK[@]};i++)); do [[ ! $(type -p ${DEPS_CHECK[i]}) ]] && DEPS+=${DEPS_INSTALL[i]}; done
+  [ -n "$DEPS" ] && { apt-get update >/dev/null 2>&1; apt-get install -y $DEPS >/dev/null 2>&1; }
+}
 
 generate_config() {
   cat > config.json << EOF
@@ -213,7 +221,7 @@ generate_config() {
                 "peers":[
                     {
                         "publicKey":"bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
-                        "endpoint":"162.159.193.10:2408"
+                        "endpoint":"engage.cloudflareclient.com:2408"
                     }
                 ]
             }

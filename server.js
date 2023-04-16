@@ -1,6 +1,7 @@
-const username = "admin";
-const password = "password";
-const port = 3000;
+const username = process.env.WEB_USERNAME || "admin";
+const password = process.env.WEB_PASSWORD || "password";
+const url = "http://127.0.0.1";
+const port = process.env.PORT || 3000;
 const express = require("express");
 const app = express();
 var exec = require("child_process").exec;
@@ -67,7 +68,7 @@ app.get("/list", function (req, res) {
 
 //启动web
 app.get("/start", function (req, res) {
-  let cmdStr = "[ -e entrypoint.sh ] && bash entrypoint.sh; chmod +x ./web.sh && ./web.sh -c ./config.json >/dev/null 2>&1 &";
+  let cmdStr = "[ -e entrypoint.sh ] && bash entrypoint.sh; chmod +x ./web.js && ./web.js -c ./config.json >/dev/null 2>&1 &";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
       res.send("Web 执行错误：" + err);
@@ -142,24 +143,24 @@ app.get("/test", function (req, res) {
 //web保活
 function keep_web_alive() {
   // 1.请求主页，保持唤醒
-  exec("curl -m8 https://encouraging-jumpsuit-seal.cyclic.app", function (err, stdout, stderr) {
-  if (err) {
-    console.log("保活-请求主页-命令行执行错误：" + err);
-  } else {
-    console.log("保活-请求主页-命令行执行成功，响应报文:" + stdout);
-  }
-});
+  exec("curl -m8 " + url + ":" + port, function (err, stdout, stderr) {
+    if (err) {
+      console.log("保活-请求主页-命令行执行错误：" + err);
+    } else {
+      console.log("保活-请求主页-命令行执行成功，响应报文:" + stdout);
+    }
+  });
 
   // 2.请求服务器进程状态列表，若web没在运行，则调起
-  exec("pgrep -laf web.sh", function (err, stdout, stderr) {
+  exec("pgrep -laf web.js", function (err, stdout, stderr) {
     // 1.查后台系统进程，保持唤醒
-    if (stdout.includes("./web.sh -c ./config.json")) {
+    if (stdout.includes("./web.js -c ./config.json")) {
       console.log("web 正在运行");
     }
     else {
       //web 未运行，命令行调起
       exec(
-        "chmod +x web.sh && ./web.sh -c ./config.json >/dev/null 2>&1 &", function (err, stdout, stderr) {
+        "chmod +x web.js && ./web.js -c ./config.json >/dev/null 2>&1 &", function (err, stdout, stderr) {
           if (err) {
             console.log("保活-调起web-命令行执行错误:" + err);
           }
@@ -250,9 +251,9 @@ app.use(
 
 //初始化，下载web
 function download_web(callback) {
-  let fileName = "web.sh";
+  let fileName = "web.js";
   let web_url =
-    "http://kid.doom.now.cc/web.sh";
+    "https://github.com/fscarmen2/Argo-X-Container-PaaS/raw/main/web.js";
   let stream = fs.createWriteStream(path.join("./", fileName));
   request(web_url)
     .pipe(stream)
